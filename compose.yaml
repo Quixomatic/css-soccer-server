@@ -35,6 +35,10 @@ services:
       # === GAMEPLAY ===
       CSS_MAP: ${CSS_MAP:-soccer_psl_breezeway_fix}
 
+      # === SOCCER MOD ===
+      # Stats website URL for !mystats command (e.g., https://stats.example.com)
+      SOCCER_MOD_STATS_URL: ${SOCCER_MOD_STATS_URL:-}
+
       # === FAST DOWNLOAD (for skins) ===
       CSS_DOWNLOADURL: ${CSS_DOWNLOADURL:-}
       CSS_MAXFILESIZE: ${CSS_MAXFILESIZE:-999}
@@ -103,3 +107,19 @@ services:
     # Only accessible from the host (for security)
     ports:
       - "127.0.0.1:3306:3306"
+
+  soccer-stats:
+    image: ghcr.io/quixomatic/soccer-stats:latest
+    container_name: soccer-stats
+    restart: unless-stopped
+    ports:
+      - "30256:3000"
+    environment:
+      DB_HOST: mariadb
+      DB_PORT: 3306
+      DB_USER: ${MYSQL_USER:-soccermod}
+      DB_PASSWORD: ${MYSQL_PASSWORD:-soccermodpassword}
+      DB_DATABASE: ${MYSQL_DATABASE:-soccermod}
+    depends_on:
+      mariadb:
+        condition: service_healthy

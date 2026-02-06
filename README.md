@@ -42,6 +42,7 @@ docker compose up -d
 | `CSS_MAP` | soccer_psl_breezeway_fix | Starting map |
 | `CSS_DOWNLOADURL` | (empty) | FastDL URL for skins |
 | `STEAM_GSLT` | (empty) | Steam Game Server Login Token |
+| `SOCCER_MOD_STATS_URL` | (empty) | Stats website URL for !mystats command |
 
 ### Volume Mounts
 

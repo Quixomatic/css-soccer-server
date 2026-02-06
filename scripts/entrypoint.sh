@@ -183,6 +183,39 @@ EOF
     log_info "Generated env_settings.cfg"
 }
 
+# Generate soccer_mod.cfg from environment variables
+generate_soccer_mod_config() {
+    local cfg_file="/home/steam/css/cstrike/cfg/sourcemod/soccer_mod.cfg"
+
+    # Ensure directory exists
+    mkdir -p "$(dirname "$cfg_file")"
+
+    cat > "$cfg_file" << EOF
+// ============================================
+// Soccer Mod Configuration
+// Auto-executed when soccer_mod plugin loads
+// ============================================
+// Generated at: $(date)
+
+// Use MariaDB for stats (connects to Docker db container)
+soccer_mod_database_config soccermod
+
+EOF
+
+    # Stats URL - only add if explicitly set
+    if [ -n "$SOCCER_MOD_STATS_URL" ]; then
+        echo "// Stats website URL (for !mystats command)" >> "$cfg_file"
+        echo "soccer_mod_stats_url \"$SOCCER_MOD_STATS_URL\"" >> "$cfg_file"
+        log_info "Soccer Mod stats URL configured: $SOCCER_MOD_STATS_URL"
+    else
+        echo "// Stats website URL (for !mystats command)" >> "$cfg_file"
+        echo "// Set via SOCCER_MOD_STATS_URL environment variable" >> "$cfg_file"
+        echo "// soccer_mod_stats_url \"https://your-stats-site.com\"" >> "$cfg_file"
+    fi
+
+    log_info "Generated soccer_mod.cfg"
+}
+
 # Create my-server.cfg if it doesn't exist
 ensure_custom_config() {
     local cfg_file="/home/steam/css/cstrike/cfg/my-server.cfg"
@@ -265,6 +298,9 @@ print_banner() {
     else
         echo -e "  GSLT:        ${YELLOW}Not set (LAN mode only)${NC}"
     fi
+    if [ -n "$SOCCER_MOD_STATS_URL" ]; then
+        echo "  Stats URL:   $SOCCER_MOD_STATS_URL"
+    fi
     echo ""
 }
 
@@ -276,6 +312,7 @@ main() {
     ensure_ban_files
     ensure_custom_config
     generate_env_config
+    generate_soccer_mod_config
 
     log_section "Starting Server"
 
