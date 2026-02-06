@@ -13,47 +13,45 @@ ARG SOCCER_MOD_VERSION=latest
 
 USER root
 
-# Install unzip if not present
-RUN apt-get update && apt-get install -y --no-install-recommends unzip && rm -rf /var/lib/apt/lists/*
+# Install unzip and jq for JSON parsing
+RUN apt-get update && apt-get install -y --no-install-recommends unzip jq && rm -rf /var/lib/apt/lists/*
 
 USER steam
 WORKDIR /home/steam
 
-# Download and install Soccer Mod from GitHub releases
+# Resolve actual version tag if 'latest' is specified
+# This gets the real version number (e.g., v1.4.12) for proper filename matching
 RUN if [ "$SOCCER_MOD_VERSION" = "latest" ]; then \
-        DOWNLOAD_URL="https://github.com/Quixomatic/soccer-mod/releases/latest/download"; \
+        ACTUAL_VERSION=$(wget -qO- https://api.github.com/repos/Quixomatic/soccer-mod/releases/latest | jq -r .tag_name); \
     else \
-        DOWNLOAD_URL="https://github.com/Quixomatic/soccer-mod/releases/download/${SOCCER_MOD_VERSION}"; \
+        ACTUAL_VERSION="$SOCCER_MOD_VERSION"; \
     fi && \
+    echo "Soccer Mod version: ${ACTUAL_VERSION}" && \
+    echo "$ACTUAL_VERSION" > /tmp/soccer_mod_version.txt
+
+# Download and install Soccer Mod from GitHub releases
+RUN ACTUAL_VERSION=$(cat /tmp/soccer_mod_version.txt) && \
+    DOWNLOAD_URL="https://github.com/Quixomatic/soccer-mod/releases/download/${ACTUAL_VERSION}" && \
     echo "Downloading Soccer Mod from ${DOWNLOAD_URL}..." && \
-    wget -q "${DOWNLOAD_URL}/soccer-mod-${SOCCER_MOD_VERSION}.zip" -O /tmp/soccer_mod.zip || \
-    wget -q "https://github.com/Quixomatic/soccer-mod/releases/latest/download/soccer-mod-v1.4.12.zip" -O /tmp/soccer_mod.zip && \
+    wget -q "${DOWNLOAD_URL}/soccer-mod-${ACTUAL_VERSION}.zip" -O /tmp/soccer_mod.zip && \
     unzip -o /tmp/soccer_mod.zip -d /home/steam/css/cstrike/ && \
     rm /tmp/soccer_mod.zip && \
     echo "Soccer Mod installed"
 
 # Download and install maps from GitHub releases
-RUN if [ "$SOCCER_MOD_VERSION" = "latest" ]; then \
-        DOWNLOAD_URL="https://github.com/Quixomatic/soccer-mod/releases/latest/download"; \
-    else \
-        DOWNLOAD_URL="https://github.com/Quixomatic/soccer-mod/releases/download/${SOCCER_MOD_VERSION}"; \
-    fi && \
+RUN ACTUAL_VERSION=$(cat /tmp/soccer_mod_version.txt) && \
+    DOWNLOAD_URL="https://github.com/Quixomatic/soccer-mod/releases/download/${ACTUAL_VERSION}" && \
     echo "Downloading maps from ${DOWNLOAD_URL}..." && \
-    wget -q "${DOWNLOAD_URL}/maps-${SOCCER_MOD_VERSION}.zip" -O /tmp/maps.zip || \
-    wget -q "https://github.com/Quixomatic/soccer-mod/releases/latest/download/maps-v1.4.12.zip" -O /tmp/maps.zip && \
+    wget -q "${DOWNLOAD_URL}/maps-${ACTUAL_VERSION}.zip" -O /tmp/maps.zip && \
     unzip -o /tmp/maps.zip -d /home/steam/css/cstrike/maps/ && \
     rm /tmp/maps.zip && \
     echo "Maps installed"
 
 # Download and install skins from GitHub releases
-RUN if [ "$SOCCER_MOD_VERSION" = "latest" ]; then \
-        DOWNLOAD_URL="https://github.com/Quixomatic/soccer-mod/releases/latest/download"; \
-    else \
-        DOWNLOAD_URL="https://github.com/Quixomatic/soccer-mod/releases/download/${SOCCER_MOD_VERSION}"; \
-    fi && \
+RUN ACTUAL_VERSION=$(cat /tmp/soccer_mod_version.txt) && \
+    DOWNLOAD_URL="https://github.com/Quixomatic/soccer-mod/releases/download/${ACTUAL_VERSION}" && \
     echo "Downloading skins from ${DOWNLOAD_URL}..." && \
-    wget -q "${DOWNLOAD_URL}/skins-${SOCCER_MOD_VERSION}.zip" -O /tmp/skins.zip || \
-    wget -q "https://github.com/Quixomatic/soccer-mod/releases/latest/download/skins-v1.4.12.zip" -O /tmp/skins.zip && \
+    wget -q "${DOWNLOAD_URL}/skins-${ACTUAL_VERSION}.zip" -O /tmp/skins.zip && \
     unzip -o /tmp/skins.zip -d /home/steam/css/cstrike/ && \
     rm /tmp/skins.zip && \
     echo "Skins installed"
