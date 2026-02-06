@@ -12,7 +12,12 @@ services:
     image: ghcr.io/quixomatic/css-soccer-server:latest
     container_name: css-soccer
     restart: unless-stopped
-    network_mode: host
+    # network_mode: host only works on Linux, use ports on Windows/Mac
+    ports:
+      - "27015:27015/tcp"
+      - "27015:27015/udp"
+      - "27020:27020/udp"
+      - "27005:27005/udp"
 
     environment:
       # === SERVER IDENTITY ===
