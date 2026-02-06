@@ -114,6 +114,30 @@ initialize_volumes() {
         log_info "maps/ already has content - preserving existing files"
     fi
 
+    # Initialize materials folder - only if empty (skins, decals, etc.)
+    if [ -d "$CSTRIKE_DIR/materials" ] && [ -z "$(ls -A $CSTRIKE_DIR/materials 2>/dev/null)" ]; then
+        log_info "Initializing materials/ with defaults (skins, decals)..."
+        cp -r "$BACKUP_DIR/materials/"* "$CSTRIKE_DIR/materials/" 2>/dev/null || true
+    else
+        log_info "materials/ already has content - preserving existing files"
+    fi
+
+    # Initialize models folder - only if empty (player models, ball)
+    if [ -d "$CSTRIKE_DIR/models" ] && [ -z "$(ls -A $CSTRIKE_DIR/models 2>/dev/null)" ]; then
+        log_info "Initializing models/ with defaults (player models, ball)..."
+        cp -r "$BACKUP_DIR/models/"* "$CSTRIKE_DIR/models/" 2>/dev/null || true
+    else
+        log_info "models/ already has content - preserving existing files"
+    fi
+
+    # Initialize sound folder - only if empty
+    if [ -d "$CSTRIKE_DIR/sound" ] && [ -z "$(ls -A $CSTRIKE_DIR/sound 2>/dev/null)" ]; then
+        log_info "Initializing sound/ with defaults..."
+        cp -r "$BACKUP_DIR/sound/"* "$CSTRIKE_DIR/sound/" 2>/dev/null || true
+    else
+        log_info "sound/ already has content - preserving existing files"
+    fi
+
     # Create empty directories if they don't exist (for mounts)
     mkdir -p "$CSTRIKE_DIR/maps" 2>/dev/null || true
     mkdir -p "$CSTRIKE_DIR/sound" 2>/dev/null || true
