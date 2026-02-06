@@ -1,0 +1,14 @@
+<html>
+<head>
+<title>Soccer Server</title>
+<style>
+body { background: #1a1a2e; color: #eee; font-family: Arial, sans-serif; padding: 20px; }
+h1 { color: #00d4ff; }
+</style>
+</head>
+<body>
+<h1>Welcome to the Soccer Server!</h1>
+<p>Use <code>!menu</code> or <code>!soccer</code> to open the Soccer Mod menu.</p>
+<p>Use <code>!help</code> for a list of commands.</p>
+</body>
+</html>

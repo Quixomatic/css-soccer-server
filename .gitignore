@@ -1,0 +1,29 @@
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Runtime data (created when running with compose)
+# These are at the repo root, created by volume mounts
+/cfg/
+/addons/
+/maps/
+/sound/
+/materials/
+/models/
+/logs/
+/db-data/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Temp files
+*.ztmp
+*.tmp

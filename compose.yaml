@@ -1,0 +1,100 @@
+# ============================================
+# CSS Soccer Server - Docker Compose
+# ============================================
+# Ready-to-run soccer server with Soccer Mod, maps, skins, and MariaDB for stats
+#
+# VOLUMES: Mounted volumes override baked-in content.
+# Empty mounted volumes are auto-populated with defaults on first run.
+# Existing files are NEVER overwritten.
+
+services:
+  css-soccer:
+    image: ghcr.io/quixomatic/css-soccer-server:latest
+    container_name: css-soccer
+    restart: unless-stopped
+    network_mode: host
+
+    environment:
+      # === SERVER IDENTITY ===
+      CSS_HOSTNAME: ${CSS_HOSTNAME:-CSS Soccer Server}
+      CSS_PASSWORD: ${CSS_PASSWORD:-}
+      RCON_PASSWORD: ${RCON_PASSWORD:-}
+      CSS_CONTACT: ${CSS_CONTACT:-}
+      CSS_REGION: ${CSS_REGION:-255}
+
+      # === NETWORK ===
+      CSS_PORT: ${CSS_PORT:-27015}
+      CSS_MAXPLAYERS: ${CSS_MAXPLAYERS:-14}
+      CSS_TICKRATE: ${CSS_TICKRATE:-100}
+
+      # === GAMEPLAY ===
+      CSS_MAP: ${CSS_MAP:-soccer_psl_breezeway_fix}
+
+      # === FAST DOWNLOAD (for skins) ===
+      CSS_DOWNLOADURL: ${CSS_DOWNLOADURL:-}
+      CSS_MAXFILESIZE: ${CSS_MAXFILESIZE:-999}
+
+      # === STEAM ===
+      STEAM_GSLT: ${STEAM_GSLT:-}
+
+    volumes:
+      # Mount these to customize/persist content
+      # Empty volumes are auto-populated with defaults
+      # Existing files are preserved on container updates
+
+      # All configs (server.cfg, mapcycle.txt, sm_soccermod/, etc.)
+      - ./cfg:/home/steam/css/cstrike/cfg
+
+      # All addons (MetaMod + SourceMod + Soccer Mod)
+      - ./addons:/home/steam/css/cstrike/addons
+
+      # Custom maps (soccer maps included in image)
+      - ./maps:/home/steam/css/cstrike/maps
+
+      # Custom sounds (soccer sounds included in image)
+      - ./sound:/home/steam/css/cstrike/sound
+
+      # Custom materials/textures (skins included in image)
+      - ./materials:/home/steam/css/cstrike/materials
+
+      # Custom models (player models included in image)
+      - ./models:/home/steam/css/cstrike/models
+
+      # Server logs
+      - ./logs:/home/steam/css/cstrike/logs
+
+    depends_on:
+      mariadb:
+        condition: service_healthy
+
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep -f srcds_linux || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  mariadb:
+    image: mariadb:10.11
+    container_name: css-soccer-db
+    restart: unless-stopped
+
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-soccermod}
+      MYSQL_USER: ${MYSQL_USER:-soccermod}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-soccermodpassword}
+
+    volumes:
+      - ./db-data:/var/lib/mysql
+
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+    # Only accessible from the host (for security)
+    ports:
+      - "127.0.0.1:3306:3306"
