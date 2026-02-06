@@ -347,6 +347,7 @@ main() {
 
     exec ./srcds_run_64 \
         -game cstrike \
+        +hostname "${CSS_HOSTNAME:-CSS Soccer Server}" \
         -port "${CSS_PORT:-27015}" \
         +map "${CSS_MAP:-soccer_psl_breezeway_fix}" \
         +maxplayers "${CSS_MAXPLAYERS:-14}" \
