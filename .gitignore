@@ -27,3 +27,9 @@ Thumbs.db
 # Temp files
 *.ztmp
 *.tmp
+
+# Claude Code instructions
+CLAUDE.md
+
+# Plans for local work
+.plans/
