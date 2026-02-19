@@ -1,14 +1,13 @@
 # ============================================
 # GitHub Actions - Build & Push CSS Soccer Server Image
 # ============================================
-# Builds on every push to main and PR (CI validation only).
-# Pushes to GitHub Container Registry only on version tags (v*).
+# Builds and pushes to GitHub Container Registry on version tags (v*).
+# PRs trigger build-only validation. Manual dispatch available as fallback.
 
 name: Build and Push CSS Soccer Server
 
 on:
   push:
-    branches: [main]
     tags: ['v*']
   pull_request:
     branches: [main]
@@ -61,9 +60,10 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
+            type=raw,value=latest
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
-            type=raw,value=latest,enable=${{ startsWith(github.ref, 'refs/tags/v') }}
+            type=sha,prefix=
             type=ref,event=pr
 
       - name: Build and push Docker image
